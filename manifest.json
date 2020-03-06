@@ -22,6 +22,7 @@
       "tabs",
       "identity",
       "http://*/",
-      "https://*/"
+      "https://*/",
+      "*://www.reddit.com/*"
   ]
 }

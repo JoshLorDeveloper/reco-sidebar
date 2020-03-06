@@ -1,7 +1,47 @@
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+    if(message.name == "loadPosts"){
+      httpGetAsync(url, dataRecieved);
+    }
+});
+
+function dataRecieved(responseText)
+{
+  var posts = "";
+  console.log(JSON.stringify(responseText))
+  var data = responseText.data.children;
+  for(post in data){
+    var postData = data[post];
+    var postHtml = '<li class="media"><a href="#" class="pull-left"><img src="https://bootdey.com/img/Content/user_1.jpg" alt="" class="img-circle"></a><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">${post.data.title}</small></span><strong class="text-success">${post.data.author}</strong><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, <a href="#">#consecteturadipiscing </a>.</p></div></li>'
+    posts+= postHtml;
+  }
+
+  chrome.tabs.executeScript(null, { file: "js/jquery.min.js" }, function() {
+    $('#reco-sidebar-iframe').load(function() {
+      $(this).contents().find('#postBody').append(posts);
+    });
+  });
+}
+
+function httpGetAsync(theUrl, callback)
+{
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200){
+            console.log(this);
+            callback(this.responseText, iframe);
+        }
+    }
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous
+    xmlHttp.send();
+}
+
+
+//////////  User Authentication
+
 chrome.browserAction.onClicked.addListener(function(tab){
     //chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
       chrome.tabs.executeScript(null, { file: "js/jquery.min.js" }, function() {
-        chrome.tabs.executeScript(null, { file: "js/content.js" });
+        chrome.tabs.executeScript(null, { file: "js/open-close.js" });
       });
       //chrome.tabs.executeScript(null, { file: "/js/jquery.min.js" }, function() {
         //chrome.tabs.sendMessage(tabs[0].id,"toggle-reco-sidebar");
@@ -22,28 +62,29 @@ chrome.storage.local.get(['access_token', 'expire_date', 'refresh_token'], funct
 });
 
 function accessTokenAvailable(access_token){
-  console.log("saved data");
+  console.log("Access token available");
 }
 
 function refreshToken(refresh_token, callback){
   var xhr = new XMLHttpRequest();
   xhr.open("POST", "https://www.reddit.com/api/v1/access_token", true);
-  xhr.send(JSON.stringify({
-    grant_type: "refresh_token",
-    refresh_token: refresh_token
-  }));
-
+  xhr.setRequestHeader('Content-Type', "application/x-www-form-urlencoded");
+  xhr.setRequestHeader("Authorization", "Basic " + btoa(config.clientId + ":" + config.clientSecret));
   xhr.onload = function() {
     var data = JSON.parse(this.responseText);
     data.expire_date = data.expires_in + (new Date() / 1000); // new Date() / 1000 is time since epoch
     delete data.expires_in;
+    delete data.visible;
+    delete data.error;
+    delete data.message;
+    delete data.token_type;
     chrome.storage.local.set(data, function(){
-       console.log("saved data");
        if(callback){
          callback(data.access_token);
         }
     });
   }
+  xhr.send("grant_type=refresh_token&refresh_token="+refresh_token);
 }
 
 function authenticate(callback){
@@ -68,8 +109,11 @@ function authenticate(callback){
           var data = JSON.parse(this.responseText);
           data.expire_date = data.expires_in + (new Date() / 1000); // new Date() / 1000 is time since epoch
           delete data.expires_in;
+          delete data.visible;
+          delete data.error;
+          delete data.message;
+          delete data.token_type;
           chrome.storage.local.set(data, function(){
-            console.log("saved data");
              if(callback){
                callback(data.access_token);
              }

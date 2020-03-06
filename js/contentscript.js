@@ -1,9 +1,3 @@
-chrome.runtime.onMessage.addListener(function(msg, sender){
-    if(msg == "toggle-reco-sidebar"){
-        toggle();
-    }
-});
-
 // https://www.reddit.com/r/php/search.json?q=url%3Ahttp%3A%2F%2Fi.imgur.com%2FJeF3XcN.jpg&sort=hot
 //https://www.reddit.com/submit.json?url=http%3A%2F%2Fi.imgur.com%2FJeF3XcN.jpg&sort=hot
 
@@ -16,7 +10,7 @@ if (!location.ancestorOrigins.contains(extensionOrigin)) {
     // Must be declared at web_accessible_resources in manifest.json
     iframe.src = chrome.runtime.getURL('views/frame.html');
     iframe.frameBorder = "none";
-    iframe.id = "reco-sidebar-iframe"
+    iframe.id = "reco-sidebar-iframe";
 
     chrome.storage.local.get(['visible'], function(shouldBeVisible) {
       // Some styles for a fancy sidebar
@@ -29,5 +23,10 @@ if (!location.ancestorOrigins.contains(extensionOrigin)) {
       }
       //setVisible(shouldBeVisible.visible)
       document.body.appendChild(iframe);
+
+      var url = "https://www.reddit.com/r/php/search.json?q=url%3A" + encodeURIComponent(document.location) + "&restrict_sr=0&sort=top";
+      chrome.runtime.sendMessage({name:"loadPosts",url:url});
+
     });
+
 }
