@@ -3,7 +3,7 @@ if(iframe !== null){
   toggle()
 }
 function toggle(){
-    if(iframe.style.right == "-" + width + "px"){
+    if(iframe.style.right == "-" + ((width === undefined) ? iframe.style.width : width) + "px"){
         setVisible(true)
         chrome.storage.local.set({visible: true}, null);
     }
