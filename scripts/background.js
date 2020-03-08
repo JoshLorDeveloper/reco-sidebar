@@ -9,18 +9,22 @@ function dataRecieved(responseText, tabId, frameId)
   var posts = "";
   var parsedResponseText = JSON.parse(responseText)
   var data = parsedResponseText.data.children;
-  for(postIndex in data){
-    var postData = data[postIndex];
-    var postHtml = '<li class="media"><a href="#" class="pull-left"><img src="https://bootdey.com/img/Content/user_1.jpg" alt="" class="img-circle"></a><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">' + escape(postData.data.title) + '</small></span><strong class="text-success">' + escape(postData.data.author) + '</strong><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, <a href="#">#consecteturadipiscing </a>.</p></div></li>'
-    posts+= postHtml;
-  }
-  chrome.tabs.executeScript(tabId, {
-      code: 'var posts = \'' + posts + '\''
-  }, function() {
-    chrome.tabs.executeScript(tabId,{
-        file: "js/insert-posts.js"
+  if(parsedResponseText.data){
+    for(postIndex in data){
+      var postData = data[postIndex];
+      var postHtml = '<li class="media"><a href="#" class="pull-left"><img src="https://bootdey.com/img/Content/user_1.jpg" alt="" class="img-circle"></a><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">' + escape(postData.data.author) + '</small></span><strong class="text-success">' + escape(postData.data.title) + '</strong><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, <a href="#">#consecteturadipiscing </a>.</p></div></li>'
+      posts+= postHtml;
+    }
+    chrome.tabs.executeScript(tabId, {
+        code: 'var posts = \'' + posts + '\''
+    }, function() {
+      chrome.tabs.executeScript(tabId,{
+          file: "js/insert-posts.js"
+      });
     });
-  });
+  }else{
+    // not posts
+  }
 }
 
 function httpGetAsync(theUrl, callback, tabId, frameId)

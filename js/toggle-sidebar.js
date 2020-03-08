@@ -5,11 +5,11 @@ if(iframe !== null){
 function toggle(){
     if(iframe.style.right == "-" + width + "px"){
         setVisible(true)
-        chrome.storage.local.set({visible: true}, function(){ console.log("saved true"); });
+        chrome.storage.local.set({visible: true}, null);
     }
     else{
         setVisible(false)
-        chrome.storage.local.set({visible: false}, function(){ console.log("saved false"); });
+        chrome.storage.local.set({visible: false}, null);
     }
 }
 

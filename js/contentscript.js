@@ -25,7 +25,7 @@ if (!location.ancestorOrigins.contains(extensionOrigin)) {
       }
       //setVisible(shouldBeVisible.visible)
       document.body.appendChild(iframe);
-      var url = "https://www.reddit.com/submit.json?url=" + encodeURIComponent(document.location) + "&restrict_sr=0&sort=top";
+      var url = "https://www.reddit.com/r/php/search.json?q=url%3A" + encodeURIComponent(document.location) + "&restrict_sr=0&sort=top&limit=10";
       chrome.runtime.sendMessage({name:"loadPosts",url:url});
 
     });
