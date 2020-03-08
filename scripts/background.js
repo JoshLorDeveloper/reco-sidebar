@@ -1,34 +1,34 @@
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     if(message.name == "loadPosts"){
-      httpGetAsync(url, dataRecieved);
+      httpGetAsync(message.url, dataRecieved, sender.tab.id, sender.frameId);
     }
 });
 
-function dataRecieved(responseText)
+function dataRecieved(responseText, tabId, frameId)
 {
   var posts = "";
-  console.log(JSON.stringify(responseText))
-  var data = responseText.data.children;
-  for(post in data){
-    var postData = data[post];
-    var postHtml = '<li class="media"><a href="#" class="pull-left"><img src="https://bootdey.com/img/Content/user_1.jpg" alt="" class="img-circle"></a><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">${post.data.title}</small></span><strong class="text-success">${post.data.author}</strong><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, <a href="#">#consecteturadipiscing </a>.</p></div></li>'
+  var parsedResponseText = JSON.parse(responseText)
+  var data = parsedResponseText.data.children;
+  for(postIndex in data){
+    var postData = data[postIndex];
+    var postHtml = '<li class="media"><a href="#" class="pull-left"><img src="https://bootdey.com/img/Content/user_1.jpg" alt="" class="img-circle"></a><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">' + escape(postData.data.title) + '</small></span><strong class="text-success">' + escape(postData.data.author) + '</strong><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, <a href="#">#consecteturadipiscing </a>.</p></div></li>'
     posts+= postHtml;
   }
-
-  chrome.tabs.executeScript(null, { file: "js/jquery.min.js" }, function() {
-    $('#reco-sidebar-iframe').load(function() {
-      $(this).contents().find('#postBody').append(posts);
+  chrome.tabs.executeScript(tabId, {
+      code: 'var posts = \'' + posts + '\''
+  }, function() {
+    chrome.tabs.executeScript(tabId,{
+        file: "js/insert-posts.js"
     });
   });
 }
 
-function httpGetAsync(theUrl, callback)
+function httpGetAsync(theUrl, callback, tabId, frameId)
 {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200){
-            console.log(this);
-            callback(this.responseText, iframe);
+            callback(this.responseText, tabId, frameId);
         }
     }
     xmlHttp.open("GET", theUrl, true); // true for asynchronous
@@ -41,7 +41,7 @@ function httpGetAsync(theUrl, callback)
 chrome.browserAction.onClicked.addListener(function(tab){
     //chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
       chrome.tabs.executeScript(null, { file: "js/jquery.min.js" }, function() {
-        chrome.tabs.executeScript(null, { file: "js/open-close.js" });
+        chrome.tabs.executeScript(null, { file: "js/toggle-sidebar.js" });
       });
       //chrome.tabs.executeScript(null, { file: "/js/jquery.min.js" }, function() {
         //chrome.tabs.sendMessage(tabs[0].id,"toggle-reco-sidebar");

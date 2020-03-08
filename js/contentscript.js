@@ -1,7 +1,6 @@
 // https://www.reddit.com/r/php/search.json?q=url%3Ahttp%3A%2F%2Fi.imgur.com%2FJeF3XcN.jpg&sort=hot
 //https://www.reddit.com/submit.json?url=http%3A%2F%2Fi.imgur.com%2FJeF3XcN.jpg&sort=hot
 
-
 var width = 300;
 // Avoid recursive frame insertion...
 var extensionOrigin = 'chrome-extension://' + chrome.runtime.id;
@@ -11,7 +10,10 @@ if (!location.ancestorOrigins.contains(extensionOrigin)) {
     iframe.src = chrome.runtime.getURL('views/frame.html');
     iframe.frameBorder = "none";
     iframe.id = "reco-sidebar-iframe";
-
+    iframe.addEventListener('load', function (e) {
+            // Either set the value of input element in Iframe
+            // here or pass an event to background.js and set it from there
+        }, false);
     chrome.storage.local.get(['visible'], function(shouldBeVisible) {
       // Some styles for a fancy sidebar
       iframe.style.cssText = 'position:fixed;top:0;display:block;' +
@@ -23,8 +25,7 @@ if (!location.ancestorOrigins.contains(extensionOrigin)) {
       }
       //setVisible(shouldBeVisible.visible)
       document.body.appendChild(iframe);
-
-      var url = "https://www.reddit.com/r/php/search.json?q=url%3A" + encodeURIComponent(document.location) + "&restrict_sr=0&sort=top";
+      var url = "https://www.reddit.com/submit.json?url=" + encodeURIComponent(document.location) + "&restrict_sr=0&sort=top";
       chrome.runtime.sendMessage({name:"loadPosts",url:url});
 
     });

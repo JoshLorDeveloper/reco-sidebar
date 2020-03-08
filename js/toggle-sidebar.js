@@ -1,5 +1,7 @@
 var iframe = document.getElementById("reco-sidebar-iframe");
-toggle()
+if(iframe !== null){
+  toggle()
+}
 function toggle(){
     if(iframe.style.right == "-" + width + "px"){
         setVisible(true)

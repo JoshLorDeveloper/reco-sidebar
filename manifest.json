@@ -10,7 +10,7 @@
       "scripts":["config/config.js", "scripts/background.js"]
   },
   "content_scripts": [{
-      "js": ["js/contentscript.js", "js/jquery.min.js"],
+      "js": ["js/contentscript.js"],
       "matches": ["*://*/*"],
       "all_frames": false
   }],
