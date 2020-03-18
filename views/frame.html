@@ -139,6 +139,20 @@
 
 
         }
+        .loader {
+          border: 8px solid #f3f3f3; /* Light grey */
+          border-top: 8px solid #3498db; /* Blue */
+          border-radius: 50%;
+          width: 16vw;
+          height: 16vw;
+          margin: 10px auto;
+          animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
       </style>
       <script type="text/javascript" src="../js/load-posts.js"></script>
   </head>
@@ -157,50 +171,7 @@
                           <div class="clearfix"></div>
                           <hr>
                           <ul id="postBody" class="media-list">
-                              <li class="media">
-                                  <a href="#" class="pull-left">
-                                      <img src="https://bootdey.com/img/Content/user_1.jpg" alt="" class="img-circle">
-                                  </a>
-                                  <div class="media-body">
-                                      <span class="text-muted pull-right">
-                                          <small class="text-muted">30 min ago</small>
-                                      </span>
-                                      <strong class="text-success">@MartinoMont</strong>
-                                      <p>
-                                          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                                          Lorem ipsum dolor sit amet, <a href="#">#consecteturadipiscing </a>.
-                                      </p>
-                                  </div>
-                              </li>
-                              <li class="media">
-                                  <a href="#" class="pull-left">
-                                      <img src="https://bootdey.com/img/Content/user_2.jpg" alt="" class="img-circle">
-                                  </a>
-                                  <div class="media-body">
-                                      <span class="text-muted pull-right">
-                                          <small class="text-muted">30 min ago</small>
-                                      </span>
-                                      <strong class="text-success">@LaurenceCorreil</strong>
-                                      <p>
-                                          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                                          Lorem ipsum dolor <a href="#">#ipsumdolor </a>adipiscing elit.
-                                      </p>
-                                  </div>
-                              </li>
-                              <li class="media">
-                                  <a href="#" class="pull-left">
-                                      <img src="https://bootdey.com/img/Content/user_3.jpg" alt="" class="img-circle">
-                                  </a>
-                                  <div class="media-body">
-                                      <span class="text-muted pull-right">
-                                          <small class="text-muted">30 min ago</small>
-                                      </span>
-                                      <strong class="text-success">@JohnNida</strong>
-                                      <p>
-                                          Lorem ipsum dolor <a href="#">#sitamet</a> sit amet, consectetur adipiscing elit.
-                                      </p>
-                                  </div>
-                              </li>
+                              <div class="loader"></div>
                           </ul>
                       </div>
                   </div>

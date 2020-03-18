@@ -7,7 +7,7 @@ var extensionOrigin = 'chrome-extension://' + chrome.runtime.id;
 if (!location.ancestorOrigins.contains(extensionOrigin)) {
     var iframe = document.createElement('iframe');
     // Must be declared at web_accessible_resources in manifest.json
-    iframe.src = chrome.runtime.getURL('views/frame.html');
+    iframe.src = chrome.runtime.getURL('views/frame.html') + "?url=" + encodeURIComponent(document.location); // comment out url addition if not requesting from iFrame
     iframe.frameBorder = "none";
     iframe.id = "reco-sidebar-iframe";
     iframe.addEventListener('load', function (e) {
