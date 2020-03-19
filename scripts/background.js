@@ -1,46 +1,4 @@
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-    if(message.name == "loadPosts"){
-      httpGetAsync(message.url, dataRecieved, sender.tab.id, sender.frameId);
-    }
-});
-
-function dataRecieved(responseText, tabId, frameId)
-{
-  var posts = "";
-  var parsedResponseText = JSON.parse(responseText)
-  var data = parsedResponseText.data.children;
-  if(parsedResponseText.data){
-    for(postIndex in data){
-      var postData = data[postIndex];
-      var postHtml = '<li class="media"><a href="#" class="pull-left"><img src="https://bootdey.com/img/Content/user_1.jpg" alt="" class="img-circle"></a><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">' + escape(postData.data.author) + '</small></span><strong class="text-success">' + escape(postData.data.title) + '</strong><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, <a href="#">#consecteturadipiscing </a>.</p></div></li>'
-      posts+= postHtml;
-    }
-    chrome.tabs.executeScript(tabId, {
-        code: 'var posts = \'' + posts + '\''
-    }, function() {
-      chrome.tabs.executeScript(tabId,{
-          file: "js/insert-posts.js"
-      });
-    });
-  }else{
-    // not posts
-  }
-}
-
-function httpGetAsync(theUrl, callback, tabId, frameId)
-{
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200){
-            callback(this.responseText, tabId, frameId);
-        }
-    }
-    xmlHttp.open("GET", theUrl, true); // true for asynchronous
-    xmlHttp.send();
-}
-
-
-//////////  User Authentication
+////////// Toggle Sidebar
 
 chrome.browserAction.onClicked.addListener(function(tab){
     //chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
@@ -53,20 +11,77 @@ chrome.browserAction.onClicked.addListener(function(tab){
     //})
 });
 
-chrome.storage.local.get(['access_token', 'expire_date', 'refresh_token'], function(retrieved_data) {
-  if(retrieved_data.refresh_token == null){
-    authenticate(accessTokenAvailable);
-  }else if(new Date() / 1000 >= retrieved_data.expire_date){
-    refreshToken(retrieved_data.refresh_token, accessTokenAvailable);
-  }else if(retrieved_data.access_token != null){
-    accessTokenAvailable(retrieved_data.access_token);
-  }else{
-    console.log("access_token is not available")
+////////// Message passing for user authentication
+var tokenBuffer = []
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  if(message.name == "loadPosts"){
+    if(accessTokenAvailable == null){
+      if(!tokenBuffer.includes(sender.tab.id)){
+        tokenBuffer.add(sender.tab.id);
+      }
+    }else{
+      if(accessTokenExpireDate == null || new Date() / 1000 >= accessTokenExpireDate){
+
+      }else{
+        sendAccessToken(tabId, accessTokenAvailable);
+      }
+      if(!tokenBuffer.includes(sender.tab.id)){
+        tokenBuffer.add(sender.tab.id);
+      }
+    }
   }
 });
 
-function accessTokenAvailable(access_token){
-  console.log("Access token available");
+function sendAccessToken(tabId, access_token){
+  chrome.tabs.executeScript(tabId, {
+      code: 'var reco_access_token = ' + access_token
+  }, function(){
+    chrome.tabs.executeScript(tabId, {
+        file: "js/toggle-sidebar.js"
+    });
+  });
+}
+
+//////////  User Authentication
+if(accessTokenAvailable = null){
+  getAccessToken()
+}
+var gettingAccessToken = false;
+function getAccessToken(){
+  chrome.storage.local.get(['access_token', 'expire_date', 'refresh_token'], function(retrieved_data) {
+    gettingAccessToken = true;
+    if(retrieved_data.refresh_token == null){
+      authenticate(accessTokenAvailable);
+    }else if(new Date() / 1000 >= retrieved_data.expire_date){
+      refreshToken(retrieved_data.refresh_token, accessTokenAvailable);
+    }else if(retrieved_data.access_token != null){
+      accessTokenAvailable(retrieved_data.access_token, retrieved_data.expire_date);
+    }else{
+      console.log("access_token is not available")
+      gettingAccessToken = false;
+    }
+  });
+}
+
+// when the access token becomes available, send it to all tabs in the buffer and store the access token
+// so that it does not need to be accessed from chrome.storage.local.get
+var accessTokenAvailable = null;
+var accessTokenExpireDate = null;
+var clock;
+function accessTokenAvailable(access_token, expireDate){
+  // may have to change this because of security
+  accessTokenAvailable = access_token;
+  accessTokenExpireDate = expireDate;
+  gettingAccessToken = false;
+  for(tabIdIndex in tokenBuffer){
+    sendAccessToken(tokenBuffer[tabIdIndex], access_token)
+  }
+  // we will need to refresh the access token when it expires
+  clearTimeout(clock);
+  clock = setTimeout( function() {
+    accessTokenAvailable == null
+    getAccessToken()
+  }, new Date()-expireDate*1000);
 }
 
 function refreshToken(refresh_token, callback){
@@ -84,7 +99,7 @@ function refreshToken(refresh_token, callback){
     delete data.token_type;
     chrome.storage.local.set(data, function(){
        if(callback){
-         callback(data.access_token);
+         callback(data.access_token, data.expire_date);
         }
     });
   }
@@ -119,7 +134,7 @@ function authenticate(callback){
           delete data.token_type;
           chrome.storage.local.set(data, function(){
              if(callback){
-               callback(data.access_token);
+               callback(data.access_token, data.expire_date);
              }
           });
         }

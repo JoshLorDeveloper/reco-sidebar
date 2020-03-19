@@ -1,10 +1,3 @@
-// window.addEventListener("message", loadPosts, false);
-// function loadPosts(msg){
-//   if(msg.data.name === "loadPosts"){
-//     document.getElementById('postBody').innerHTML = unescape(msg.data.posts);
-//   }
-// }
-
 var parentUrl = location.href.split('?url=')[1]
 var url = "https://www.reddit.com/r/php/search.json?q=url%3A" + parentUrl + "&restrict_sr=0&sort=top&limit=10";
 httpGetAsync(url, dataRecieved);
