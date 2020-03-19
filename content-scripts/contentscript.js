@@ -10,7 +10,6 @@ if (!location.ancestorOrigins.contains(extensionOrigin)) {
     iframe.src = chrome.runtime.getURL('views/frame.html') + "?url=" + encodeURIComponent(document.location); // comment out url addition if not requesting from iFrame
     iframe.frameBorder = "none";
     iframe.id = "reco-sidebar-iframe";
-    iframe.contentWindow.addEventListener("post", createPost, false);
     chrome.storage.local.get(['visible'], function(shouldBeVisible) {
       // Some styles for a fancy sidebar
       iframe.style.cssText = 'position:fixed;top:0;display:block;' +
@@ -22,10 +21,4 @@ if (!location.ancestorOrigins.contains(extensionOrigin)) {
       }
       document.body.appendChild(iframe);
     });
-}
-
-function createPost(postData){
-  if(msg.data.name === "createPost"){
-    chrome.runtime.sendMessage({name:"createPost", postData: postData});
-  }
 }

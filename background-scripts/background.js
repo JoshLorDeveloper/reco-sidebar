@@ -1,10 +1,10 @@
 ////////// Toggle Sidebar
 chrome.browserAction.onClicked.addListener(function(tab){
     //chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
-      chrome.tabs.executeScript(null, { file: "js/jquery.min.js" }, function() {
-        chrome.tabs.executeScript(null, { file: "js/toggle-sidebar.js" });
+      chrome.tabs.executeScript(null, { file: "resources/jquery.min.js" }, function() {
+        chrome.tabs.executeScript(null, { file: "content-scripts/toggle-sidebar.js" });
       });
-      //chrome.tabs.executeScript(null, { file: "/js/jquery.min.js" }, function() {
+      //chrome.tabs.executeScript(null, { file: "resources/jquery.min.js" }, function() {
         //chrome.tabs.sendMessage(tabs[0].id,"toggle-reco-sidebar");
       //});
     //})
@@ -13,11 +13,13 @@ chrome.browserAction.onClicked.addListener(function(tab){
 ////////// Message passing for user authentication
 var postBuffer = []
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-  if(message.name == "createPost"){
+  if(message.name == "createPost" && message.postData != null){
     chrome.storage.local.get(['access_token', 'expire_date'], function(retrieved_data) {
       if(retrieved_data.access_token == null || new Date() / 1000 >= retrieved_data.expire_date){
+        sendResponse(false)
         postBuffer.add(message.postData);
       }else{
+        sendResponse(true)
         createNewPostForUser(message.postData, retrieved_data.access_token);
       }
     });

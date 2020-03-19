@@ -7,10 +7,10 @@
   "browser_action": {
   },
   "background": {
-      "scripts":["config/config.js", "scripts/background.js"]
+      "scripts":["config/config.js", "background-scripts/background.js"]
   },
   "content_scripts": [{
-      "js": ["js/contentscript.js"],
+      "js": ["content-scripts/contentscript.js"],
       "matches": ["*://*/*"],
       "all_frames": false
   }],
