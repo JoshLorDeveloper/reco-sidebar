@@ -29,6 +29,6 @@ function dataRecieved(responseText)
       }
     }
   }else{
-    // not posts
+    // no posts
   }
 }

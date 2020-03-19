@@ -1,5 +1,4 @@
 ////////// Toggle Sidebar
-
 chrome.browserAction.onClicked.addListener(function(tab){
     //chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
       chrome.tabs.executeScript(null, { file: "js/jquery.min.js" }, function() {
@@ -12,50 +11,33 @@ chrome.browserAction.onClicked.addListener(function(tab){
 });
 
 ////////// Message passing for user authentication
-var tokenBuffer = []
+var postBuffer = []
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-  if(message.name == "loadPosts"){
-    if(accessTokenAvailable == null){
-      if(!tokenBuffer.includes(sender.tab.id)){
-        tokenBuffer.add(sender.tab.id);
-      }
-    }else{
-      if(accessTokenExpireDate == null || new Date() / 1000 >= accessTokenExpireDate){
-
+  if(message.name == "createPost"){
+    chrome.storage.local.get(['access_token', 'expire_date'], function(retrieved_data) {
+      if(retrieved_data.access_token == null || new Date() / 1000 >= retrieved_data.expire_date){
+        postBuffer.add(message.postData);
       }else{
-        sendAccessToken(tabId, accessTokenAvailable);
+        createNewPostForUser(message.postData, retrieved_data.access_token);
       }
-      if(!tokenBuffer.includes(sender.tab.id)){
-        tokenBuffer.add(sender.tab.id);
-      }
-    }
+    });
   }
 });
 
-function sendAccessToken(tabId, access_token){
-  chrome.tabs.executeScript(tabId, {
-      code: 'var reco_access_token = ' + access_token
-  }, function(){
-    chrome.tabs.executeScript(tabId, {
-        file: "js/toggle-sidebar.js"
-    });
-  });
+////////// use reddit api to create a post for user based on the post's data
+function createNewPostForUser(postData, access_token){
+
 }
 
 //////////  User Authentication
-if(accessTokenAvailable = null){
-  getAccessToken()
-}
-var gettingAccessToken = false;
 function getAccessToken(){
   chrome.storage.local.get(['access_token', 'expire_date', 'refresh_token'], function(retrieved_data) {
-    gettingAccessToken = true;
     if(retrieved_data.refresh_token == null){
       authenticate(accessTokenAvailable);
     }else if(new Date() / 1000 >= retrieved_data.expire_date){
       refreshToken(retrieved_data.refresh_token, accessTokenAvailable);
     }else if(retrieved_data.access_token != null){
-      accessTokenAvailable(retrieved_data.access_token, retrieved_data.expire_date);
+      accessTokenAvailable(retrieved_data.access_token);
     }else{
       console.log("access_token is not available")
       gettingAccessToken = false;
@@ -65,23 +47,10 @@ function getAccessToken(){
 
 // when the access token becomes available, send it to all tabs in the buffer and store the access token
 // so that it does not need to be accessed from chrome.storage.local.get
-var accessTokenAvailable = null;
-var accessTokenExpireDate = null;
-var clock;
-function accessTokenAvailable(access_token, expireDate){
-  // may have to change this because of security
-  accessTokenAvailable = access_token;
-  accessTokenExpireDate = expireDate;
-  gettingAccessToken = false;
-  for(tabIdIndex in tokenBuffer){
-    sendAccessToken(tokenBuffer[tabIdIndex], access_token)
+function accessTokenAvailable(access_token){
+  for(postDataIndex in postBuffer){
+    createNewPostForUser(postBuffer[postDataIndex], access_token);
   }
-  // we will need to refresh the access token when it expires
-  clearTimeout(clock);
-  clock = setTimeout( function() {
-    accessTokenAvailable == null
-    getAccessToken()
-  }, new Date()-expireDate*1000);
 }
 
 function refreshToken(refresh_token, callback){
@@ -99,7 +68,7 @@ function refreshToken(refresh_token, callback){
     delete data.token_type;
     chrome.storage.local.set(data, function(){
        if(callback){
-         callback(data.access_token, data.expire_date);
+         callback(data.access_token);
         }
     });
   }
@@ -134,7 +103,7 @@ function authenticate(callback){
           delete data.token_type;
           chrome.storage.local.set(data, function(){
              if(callback){
-               callback(data.access_token, data.expire_date);
+               callback(data.access_token);
              }
           });
         }
