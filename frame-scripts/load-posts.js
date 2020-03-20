@@ -22,10 +22,10 @@ function dataRecieved(responseText)
   if(parsedResponseText.data){
     for(postIndex in data){
       var postData = data[postIndex];
-      var postHtml = '<li class="media"><a href="#" class="pull-left"><img src="https://bootdey.com/img/Content/user_1.jpg" alt="" class="img-circle"></a><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">' + escape(postData.data.author) + '</small></span><strong class="text-success">' + escape(postData.data.title) + '</strong><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, <a href="#">#consecteturadipiscing </a>.</p></div></li>'
+      var postHtml = '<li class="media"><a href="#" class="pull-left"><img src="https://bootdey.com/img/Content/user_1.jpg" alt="" class="img-circle"></a><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">' + postData.data.author + '</small></span><strong class="text-success">' + postData.data.title + '</strong><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, <a href="#">#consecteturadipiscing </a>.</p></div></li>'
       posts+= postHtml;
       if(postIndex == data.length - 1){
-        document.getElementById('postBody').innerHTML = unescape(posts);
+        document.getElementById('postBody').innerHTML = posts;
       }
     }
   }else{

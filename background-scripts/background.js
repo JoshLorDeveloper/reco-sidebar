@@ -28,7 +28,36 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
 ////////// use reddit api to create a post for user based on the post's data
 function createNewPostForUser(postData, access_token){
+  var xhr = new XMLHttpRequest();
+  var url = "https://oauth.reddit.com/api/" + (postData.postType == "newThread" ? "submit" : "comment");
+  xhr.open("POST", url, true);
+  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  xhr.setRequestHeader('User-Agent', config.userAgent);
+  xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
 
+  xhr.onload = function() {
+    console.log(this.responseText);
+  }
+
+  if(postData.postType === "newThread"){
+    xhr.send(JSON.stringify({
+      api_type: "json",
+      kind: "link",
+      url: postData.url,
+      sr:"comments",
+      resubmit: true,
+      title: postData.content
+    }));
+  }else if(postData.postType === "comment"){
+    xhr.send(JSON.stringify({
+      api_type: "json",
+      thing_id: postData.threadId,
+      text: postData.content
+    }));
+  }else{
+    xhr = null
+    console.log("Invalid post type")
+  }
 }
 
 //////////  User Authentication
