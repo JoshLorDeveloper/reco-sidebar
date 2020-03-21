@@ -1,13 +1,10 @@
 ////////// Toggle Sidebar
 chrome.browserAction.onClicked.addListener(function(tab){
-    //chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
-      chrome.tabs.executeScript(null, { file: "resources/jquery.min.js" }, function() {
-        chrome.tabs.executeScript(null, { file: "content-scripts/toggle-sidebar.js" });
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+      chrome.tabs.executeScript(tabs[0].id, { file: "resources/jquery.min.js" }, function() {
+        chrome.tabs.executeScript(tabs[0].id, { file: "content-scripts/toggle-sidebar.js" });
       });
-      //chrome.tabs.executeScript(null, { file: "resources/jquery.min.js" }, function() {
-        //chrome.tabs.sendMessage(tabs[0].id,"toggle-reco-sidebar");
-      //});
-    //})
+    });
 });
 
 ////////// Message passing for user authentication
@@ -18,6 +15,8 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
       if(retrieved_data.access_token == null || new Date() / 1000 >= retrieved_data.expire_date){
         sendResponse(false)
         postBuffer.add(message.postData);
+        // only get access token if needed, this can be chagned for performance purposes
+        getAccessToken()
       }else{
         sendResponse(true)
         createNewPostForUser(message.postData, retrieved_data.access_token);
@@ -71,7 +70,6 @@ function getAccessToken(){
       accessTokenAvailable(retrieved_data.access_token);
     }else{
       console.log("access_token is not available")
-      gettingAccessToken = false;
     }
   });
 }
@@ -82,6 +80,7 @@ function accessTokenAvailable(access_token){
   for(postDataIndex in postBuffer){
     createNewPostForUser(postBuffer[postDataIndex], access_token);
   }
+  postBuffer = []
 }
 
 function refreshToken(refresh_token, callback){

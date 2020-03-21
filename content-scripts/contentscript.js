@@ -1,6 +1,7 @@
 // https://www.reddit.com/r/php/search.json?q=url%3Ahttp%3A%2F%2Fi.imgur.com%2FJeF3XcN.jpg&sort=hot
 //https://www.reddit.com/submit.json?url=http%3A%2F%2Fi.imgur.com%2FJeF3XcN.jpg&sort=hot
 
+// constants
 var width = 300;
 // Avoid recursive frame insertion...
 var extensionOrigin = 'chrome-extension://' + chrome.runtime.id;
@@ -13,7 +14,7 @@ if (!location.ancestorOrigins.contains(extensionOrigin)) {
     chrome.storage.local.get(['visible'], function(shouldBeVisible) {
       // Some styles for a fancy sidebar
       iframe.style.cssText = 'position:fixed;top:0;display:block;' +
-                             'height:100%;z-index:999999;width:300px;';
+                             'height:100%;z-index:999999;width:' + width + 'px;';
       if(shouldBeVisible.visible){
         iframe.style.right = "0px";
       }else{
