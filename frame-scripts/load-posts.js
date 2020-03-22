@@ -1,5 +1,5 @@
 var parentUrl = location.href.split('?url=')[1]
-var url = "https://www.reddit.com/r/php/search.json?q=url%3A" + parentUrl + "&restrict_sr=0&sort=top&limit=10";
+var url = "https://www.reddit.com/r/php/search.json?q=url%3A" + parentUrl + "&restrict_sr=0&sort=new&limit=10";
 httpGetAsync(url, dataRecieved);
 
 function httpGetAsync(theUrl, callback)
@@ -22,7 +22,8 @@ function dataRecieved(responseText)
   if(parsedResponseText.data){
     for(postIndex in data){
       var postData = data[postIndex];
-      var postHtml = '<li class="media"><a href="#" class="pull-left"><img src="https://bootdey.com/img/Content/user_1.jpg" alt="" class="img-circle"></a><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">' + postData.data.author + '</small></span><strong class="text-success">' + postData.data.title + '</strong><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, <a href="#">#consecteturadipiscing </a>.</p></div></li>'
+      var timeSinceCreationString = timeSince(postData.data.created_utc*1000) + " ago"
+      var postHtml = '<li class="media"><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">' + timeSinceCreationString + '</small></span><strong class="text-success">' + postData.data.author + '</strong><p>' + postData.data.title + '</p></div></li>'
       posts+= postHtml;
       if(postIndex == data.length - 1){
         document.getElementById('postBody').innerHTML = posts;
@@ -31,4 +32,32 @@ function dataRecieved(responseText)
   }else{
     // no posts
   }
+}
+
+function timeSince(date) {
+
+  var seconds = Math.floor((new Date() - date) / 1000);
+
+  var interval = Math.floor(seconds / 31536000);
+
+  if (interval > 1) {
+    return interval + " years";
+  }
+  interval = Math.floor(seconds / 2592000);
+  if (interval > 1) {
+    return interval + " months";
+  }
+  interval = Math.floor(seconds / 86400);
+  if (interval > 1) {
+    return interval + " days";
+  }
+  interval = Math.floor(seconds / 3600);
+  if (interval > 1) {
+    return interval + " hours";
+  }
+  interval = Math.floor(seconds / 60);
+  if (interval > 1) {
+    return interval + " minutes";
+  }
+  return Math.floor(seconds) + " seconds";
 }

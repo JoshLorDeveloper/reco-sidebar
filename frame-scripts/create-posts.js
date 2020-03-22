@@ -5,12 +5,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
   var urlForPost = decodeURI(location.href.split('?url=')[1]);
   postButton.addEventListener("click", function() {
     var postData = {postType: "newThread", url: urlForPost, content: postContent.value}
-    chrome.runtime.sendMessage({name:"createPost", postData: postData}, function (isPrepared) {
-      if(isPrepared){
-        console.log("post will be available shorty")
-      }else{
-        console.log("post may take a while to complete")
-      }
+    chrome.runtime.sendMessage({name:"createPost", postData: postData}, function () {
+      window.location.reload();
     });
   }, false);
 });

@@ -12,23 +12,35 @@
             background-color: #fcfcfc;
             color: black;
         }
-
+        p{
+          margin-bottom: 0;
+        }
+        .noRightPadding{
+          padding-right: 0;
+        }
+        .noRightMargin{
+          margin-right: 0;
+        }
         .comment-wrapper .panel-body {
             overflow:auto;
         }
-
         .comment-wrapper .media-list .media img {
             width:64px;
             height:64px;
             border:2px solid #e5e7e8;
         }
-
         .comment-wrapper .media-list .media:not(:last-child) {
             border-bottom:1px dashed #efefef;
-            margin-bottom:25px;
+            margin-bottom:20px;
+            padding-bottom:20px;
         }
-
-
+        .media:last-child {
+            margin-bottom:15px;
+        }
+        hr {
+          margin-top: 20px;
+          margin-bottom: 20px;
+        }
         img {
             vertical-align: middle;
         }
@@ -47,6 +59,7 @@
         }
         .media-body {
             width: 10000px;
+            margin-left: 12px;
         }
         .media, .media-body {
             overflow: hidden;
@@ -158,8 +171,8 @@
       <script type="text/javascript" src="../frame-scripts/create-posts.js"></script>
   </head>
   <body>
-      <div class="row bootstrap snippets height100 divided">
-          <div class="col-md-6 col-md-offset-2 col-sm-12">
+      <div class="row bootstrap snippets height100 divided noRightMargin">
+          <div class="col-md-6 col-md-offset-2 col-sm-12 noRightPadding">
               <div class="comment-wrapper">
                   <div class="panel panel-info">
                       <!-- <div class="panel-heading">

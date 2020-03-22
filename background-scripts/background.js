@@ -4,21 +4,20 @@ chrome.browserAction.onClicked.addListener(function(tab){
       chrome.tabs.executeScript(tabs[0].id, { file: "resources/jquery.min.js" }, function() {
         chrome.tabs.executeScript(tabs[0].id, { file: "content-scripts/toggle-sidebar.js" });
       });
-    });
+    })
 });
 
 ////////// Message passing for user authentication
 var postBuffer = []
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   if(message.name == "createPost" && message.postData != null){
+    sendResponse();
     chrome.storage.local.get(['access_token', 'expire_date'], function(retrieved_data) {
       if(retrieved_data.access_token == null || new Date() / 1000 >= retrieved_data.expire_date){
-        sendResponse(false)
-        postBuffer.add(message.postData);
+        postBuffer.push(message.postData);
         // only get access token if needed, this can be chagned for performance purposes
         getAccessToken()
       }else{
-        sendResponse(true)
         createNewPostForUser(message.postData, retrieved_data.access_token);
       }
     });
@@ -31,28 +30,14 @@ function createNewPostForUser(postData, access_token){
   var url = "https://oauth.reddit.com/api/" + (postData.postType == "newThread" ? "submit" : "comment");
   xhr.open("POST", url, true);
   xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-  xhr.setRequestHeader('User-Agent', config.userAgent);
   xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
-
   xhr.onload = function() {
-    console.log(this.responseText);
+    console.log(JSON.parse(this.responseText));
   }
-
   if(postData.postType === "newThread"){
-    xhr.send(JSON.stringify({
-      api_type: "json",
-      kind: "link",
-      url: postData.url,
-      sr:"comments",
-      resubmit: true,
-      title: postData.content
-    }));
+    xhr.send("api_type=json&kind=link&sr=test&resubmit=true&url="+postData.url+"&title="+postData.content);
   }else if(postData.postType === "comment"){
-    xhr.send(JSON.stringify({
-      api_type: "json",
-      thing_id: postData.threadId,
-      text: postData.content
-    }));
+    xhr.send("api_type=json&thing_id="+postData.threadId+"&text="+postData.content);
   }else{
     xhr = null
     console.log("Invalid post type")
@@ -109,7 +94,7 @@ function authenticate(callback){
   const client_id = config.clientId;
   const redirectUri = chrome.identity.getRedirectURL("oauth2");
   const duration = "permanent";
-  const scope = "edit read vote";
+  const scope = "edit read vote submit";
   const state = Math.random().toString(36).slice(2);
   var auth_url = "https://www.reddit.com/api/v1/authorize?client_id=" + client_id + "&response_type=code" + "&state=" + state + "&redirect_uri=" + redirectUri + "&duration=" + duration + "&scope=" + scope;
 
