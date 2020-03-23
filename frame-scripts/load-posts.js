@@ -19,24 +19,36 @@ function dataRecieved(responseText)
   var posts = "";
   var parsedResponseText = JSON.parse(responseText)
   var data = parsedResponseText.data.children;
-  if(parsedResponseText.data){
-    for(postIndex in data){
-      var postData = data[postIndex];
-      var timeSinceCreationString = timeSince(postData.data.created_utc*1000) + " ago"
-      var postHtml = '<li class="media"><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">' + timeSinceCreationString + '</small></span><strong class="text-success">' + postData.data.author + '</strong><p>' + postData.data.title + '</p></div></li>'
-      posts+= postHtml;
-      if(postIndex == data.length - 1){
-        document.getElementById('postBody').innerHTML = posts;
+  chrome.storage.local.get(['buffered_posts','name'], function(retrieved_data) {
+    if(retrieved_data.name != null){
+      for (postIndex in retrieved_data.buffered_posts){
+        var postData = retrieved_data.buffered_posts[postIndex];
+        if(parentUrl === postData.url){
+          var timeSinceCreationString = timeSince(postData.date*1000) + " ago"
+          var postHtml = '<li class="media"><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">' + timeSinceCreationString + '</small></span><strong class="text-success">' + retrieved_data.name + '</strong><p>' + postData.content + '</p></div></li>'
+          posts+= postHtml;
+        }
       }
     }
-  }else{
-    // no posts
-  }
+    if(parsedResponseText.data){
+      for(postIndex in data){
+        var postData = data[postIndex];
+        var timeSinceCreationString = timeSince(postData.data.created_utc*1000) + " ago"
+        var postHtml = '<li class="media"><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">' + timeSinceCreationString + '</small></span><strong class="text-success">' + postData.data.author + '</strong><p>' + postData.data.title + '</p></div></li>'
+        posts+= postHtml;
+        if(postIndex == data.length - 1){
+          document.getElementById('postBody').innerHTML = posts;
+        }
+      }
+    }else{
+      // no posts
+    }
+  });
 }
 
 function timeSince(date) {
-
-  var seconds = Math.floor((new Date() - date) / 1000);
+  var currentDate = new Date()
+  var seconds = Math.floor((currentDate.getUTCDate() - date) / 1000);
 
   var interval = Math.floor(seconds / 31536000);
 

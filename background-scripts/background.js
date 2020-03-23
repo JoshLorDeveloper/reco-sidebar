@@ -109,18 +109,25 @@ function authenticate(callback){
         xhr.setRequestHeader('Content-Type', "application/x-www-form-urlencoded");
         xhr.setRequestHeader("Authorization", "Basic " + btoa(config.clientId + ":" + config.clientSecret));
         xhr.onload = function() {
-          var data = JSON.parse(this.responseText);
+          var data = JSON.parse(xhr.responseText);
           data.expire_date = data.expires_in + (new Date() / 1000); // new Date() / 1000 is time since epoch
           delete data.expires_in;
           delete data.visible;
           delete data.error;
           delete data.message;
           delete data.token_type;
-          chrome.storage.local.set(data, function(){
-             if(callback){
-               callback(data.access_token);
-             }
-          });
+          var xhr2 = new XMLHttpRequest();
+          xhr2.open("GET", "https://oauth.reddit.com/api/v1/me", true);
+          xhr2.setRequestHeader('Authorization', 'Bearer ' + data.access_token);
+          xhr2.onload = function() {
+            data.name = JSON.parse(xhr2.responseText).name;
+            chrome.storage.local.set(data, function(){
+               if(callback){
+                 callback(data.access_token);
+               }
+            });
+          }
+          xhr2.send();
         }
         xhr.send("grant_type=authorization_code&code="+getParameterByName("code", redirect_url)+"&redirect_uri="+redirectUri);
       }
