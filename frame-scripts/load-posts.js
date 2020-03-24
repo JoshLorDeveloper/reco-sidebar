@@ -21,25 +21,36 @@ function dataRecieved(responseText)
   var data = parsedResponseText.data.children;
   chrome.storage.local.get(['buffered_posts','name'], function(retrieved_data) {
     if(retrieved_data.name != null){
-      for (postIndex in retrieved_data.buffered_posts){
-        var postData = retrieved_data.buffered_posts[postIndex];
-        if(parentUrl === postData.url){
-          var timeSinceCreationString = timeSince(postData.date*1000) + " ago"
-          var postHtml = '<li class="media"><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">' + timeSinceCreationString + '</small></span><strong class="text-success">' + retrieved_data.name + '</strong><p>' + postData.content + '</p></div></li>'
+      for (bufferedPostIndex in retrieved_data.buffered_posts){
+        var bufferedPostData = retrieved_data.buffered_posts[bufferedPostIndex];
+        if(parentUrl === bufferedPostData.url){
+          var timeSinceCreationString = timeSince(bufferedPostData.date*1000) + " ago"
+          var postHtml = '<li class="media"><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">' + timeSinceCreationString + '</small></span><strong class="text-success">' + retrieved_data.name + '</strong><p>' + bufferedPostData.content + '</p></div></li>'
           posts+= postHtml;
         }
       }
     }
     if(parsedResponseText.data){
-      for(postIndex in data){
-        var postData = data[postIndex];
-        var timeSinceCreationString = timeSince(postData.data.created_utc*1000) + " ago"
-        var postHtml = '<li class="media"><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">' + timeSinceCreationString + '</small></span><strong class="text-success">' + postData.data.author + '</strong><p>' + postData.data.title + '</p></div></li>'
-        posts+= postHtml;
-        if(postIndex == data.length - 1){
-          document.getElementById('postBody').innerHTML = posts;
+      loop1:
+        for(postIndex in data){
+          var postData = data[postIndex];
+          if(retrieved_data.name!= null && postData.data.author === retrieved_data.name){
+            loop2:
+              for (bufferedPostIndex in retrieved_data.buffered_posts){
+                var bufferedPostData = retrieved_data.buffered_posts[bufferedPostIndex];
+                if(parentUrl === bufferedPostData.url && bufferedPostData.content!=null && bufferedPostData.content === postData.data.title){
+                  retrieved_data.buffered_posts.remove(bufferedPostIndex);
+                  continue loop1;
+                }
+              }
+          }
+          var timeSinceCreationString = timeSince(postData.data.created_utc*1000) + " ago"
+          var postHtml = '<li class="media"><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">' + timeSinceCreationString + '</small></span><strong class="text-success">' + postData.data.author + '</strong><p>' + postData.data.title + '</p></div></li>'
+          posts+= postHtml;
+          if(postIndex == data.length - 1){
+            document.getElementById('postBody').innerHTML = posts;
+          }
         }
-      }
     }else{
       // no posts
     }
