@@ -75,17 +75,19 @@ function refreshToken(refresh_token, callback){
   xhr.setRequestHeader("Authorization", "Basic " + btoa(config.clientId + ":" + config.clientSecret));
   xhr.onload = function() {
     var data = JSON.parse(this.responseText);
-    data.expire_date = data.expires_in + (new Date() / 1000); // new Date() / 1000 is time since epoch
-    delete data.expires_in;
-    delete data.visible;
-    delete data.error;
-    delete data.message;
-    delete data.token_type;
-    chrome.storage.local.set(data, function(){
-       if(callback){
-         callback(data.access_token);
-        }
-    });
+    if(data.access_token != null){
+      data.expire_date = data.expires_in + (new Date() / 1000); // new Date() / 1000 is time since epoch
+      delete data.expires_in;
+      delete data.visible;
+      delete data.error;
+      delete data.message;
+      delete data.token_type;
+      chrome.storage.local.set(data, function(){
+         if(callback){
+           callback(data.access_token);
+          }
+      });
+    }
   }
   xhr.send("grant_type=refresh_token&refresh_token="+refresh_token);
 }
@@ -94,7 +96,7 @@ function authenticate(callback){
   const client_id = config.clientId;
   const redirectUri = chrome.identity.getRedirectURL("oauth2");
   const duration = "permanent";
-  const scope = "edit read vote submit";
+  const scope = "edit read vote identity submit";
   const state = Math.random().toString(36).slice(2);
   var auth_url = "https://www.reddit.com/api/v1/authorize?client_id=" + client_id + "&response_type=code" + "&state=" + state + "&redirect_uri=" + redirectUri + "&duration=" + duration + "&scope=" + scope;
 
@@ -110,24 +112,26 @@ function authenticate(callback){
         xhr.setRequestHeader("Authorization", "Basic " + btoa(config.clientId + ":" + config.clientSecret));
         xhr.onload = function() {
           var data = JSON.parse(xhr.responseText);
-          data.expire_date = data.expires_in + (new Date() / 1000); // new Date() / 1000 is time since epoch
-          delete data.expires_in;
-          delete data.visible;
-          delete data.error;
-          delete data.message;
-          delete data.token_type;
-          var xhr2 = new XMLHttpRequest();
-          xhr2.open("GET", "https://oauth.reddit.com/api/v1/me", true);
-          xhr2.setRequestHeader('Authorization', 'Bearer ' + data.access_token);
-          xhr2.onload = function() {
-            data.name = JSON.parse(xhr2.responseText).name;
-            chrome.storage.local.set(data, function(){
-               if(callback){
-                 callback(data.access_token);
-               }
-            });
+          if(data.access_token != null){
+            data.expire_date = data.expires_in + (new Date() / 1000); // new Date() / 1000 is time since epoch
+            delete data.expires_in;
+            delete data.visible;
+            delete data.error;
+            delete data.message;
+            delete data.token_type;
+            var xhr2 = new XMLHttpRequest();
+            xhr2.open("GET", "https://oauth.reddit.com/api/v1/me", true);
+            xhr2.setRequestHeader('Authorization', 'Bearer ' + data.access_token);
+            xhr2.onload = function() {
+              data.name = JSON.parse(xhr2.responseText).name;
+              chrome.storage.local.set(data, function(){
+                 if(callback){
+                   callback(data.access_token);
+                 }
+              });
+            }
+            xhr2.send();
           }
-          xhr2.send();
         }
         xhr.send("grant_type=authorization_code&code="+getParameterByName("code", redirect_url)+"&redirect_uri="+redirectUri);
       }
