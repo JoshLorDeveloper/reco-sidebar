@@ -23,16 +23,23 @@ function dataRecieved(responseText)
     chrome.storage.local.get(['buffered_posts','name'], function(retrieved_data) {
       var tempPosts = retrieved_data.buffered_posts;
       if(retrieved_data.name != null){
-        for (bufferedPostIndex in tempPosts){
+        for (var bufferedPostIndex = tempPosts.length - 1; bufferedPostIndex >=0; bufferedPostIndex--){
           var bufferedPostData = tempPosts[bufferedPostIndex];
           if(parentUrl === bufferedPostData.url){
+            if(data.length > 0 && data[data.length-1].data.created_utc*1000 > bufferedPostData.integer_date){
+              tempPosts.splice(bufferedPostIndex, 1);
+              continue;
+            }
             var timeSinceCreationString = timeSince(bufferedPostData.integer_date) + " ago"
             var postHtml = '<li class="media"><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">' + timeSinceCreationString + '</small></span><strong class="text-success">' + retrieved_data.name + '</strong><p>' + bufferedPostData.content + '</p></div></li>'
             posts+= postHtml;
+            if(data.length === 0 && bufferedPostIndex == tempPosts.length - 1){
+              document.getElementById('postBody').innerHTML = posts;
+            }
           }
         }
       }
-      if(parsedResponseText.data.children.length > 0){
+      if(data.length > 0){
         loop1:
           for(postIndex in data){
             var postData = data[postIndex];
@@ -42,6 +49,9 @@ function dataRecieved(responseText)
                   var bufferedPostData = tempPosts[bufferedPostIndex];
                   if(parentUrl === bufferedPostData.url && bufferedPostData.content != null && bufferedPostData.content === postData.data.title){
                     tempPosts.splice(bufferedPostIndex, 1);
+                    if(postIndex == data.length - 1){
+                      document.getElementById('postBody').innerHTML = posts;
+                    }
                     continue loop1;
                   }
                 }

@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
   var postContent = document.getElementById("postContent");
   var urlForPost = decodeURI(location.href.split('?url=')[1]);
   postButton.addEventListener("click", function() {
-    var postData = {postType: "newThread", url: urlForPost, content: postContent.value, integer_date: new Date()*1000}
+    var postData = {postType: "newThread", url: urlForPost, content: postContent.value, integer_date: new Date()*1}
     chrome.runtime.sendMessage({name:"createPost", postData: postData}, function () {
       chrome.storage.local.get(['buffered_posts'], function(retrieved_data) {
         var temparr = retrieved_data.buffered_posts;
