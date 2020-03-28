@@ -1,6 +1,30 @@
-var parentUrl = location.href.split('?url=')[1]
-var url = "https://www.reddit.com/r/php/search.json?q=url%3A" + parentUrl + "&restrict_sr=0&sort=new&limit=10";
-httpGetAsync(url, dataRecieved);
+var params = location.href.split('?url=')[1].split('?thread=');
+var parentUrl = params[0];
+var url;
+if(params.length == 1){
+  url = "https://www.reddit.com/r/php/search.json?q=url%3A" + parentUrl + "&restrict_sr=0&sort=hot&limit=10";
+  httpGetAsync(url, dataRecieved);
+}else{
+  // showing comments not yet supported
+  var responsePostInfo = JSON.parse(params[1])
+  url = "https://www.reddit.com/r/" + responsePostInfo.subreddit + "/comments/" + responsePostInfo.thread_id + ".json" + responsePostInfo.comment_id != null ? ("?comment=" + responsePostInfo.comment_id) : "";
+  //httpGetAsync(url, dataRecieved);
+}
+
+document.addEventListener("DOMContentLoaded", function(event) {
+  var elements = document.getElementsByClassName("dropdownOption");
+
+  for (var i = 0; i < elements.length; i++) {
+    elements[i].addEventListener("click", changeSort);
+  }
+});
+
+function changeSort() {
+    var attribute = this.getAttribute("value");
+    url = "https://www.reddit.com/r/php/search.json?q=url%3A" + parentUrl + "&restrict_sr=0&sort=" + attribute + "&limit=10";
+    document.getElementById('postBody').innerHTML = '<div class="loader"></div>';
+    httpGetAsync(url, dataRecieved);
+};
 
 function httpGetAsync(theUrl, callback)
 {
@@ -22,7 +46,7 @@ function dataRecieved(responseText)
     var data = parsedResponseText.data.children;
     chrome.storage.local.get(['buffered_posts','name'], function(retrieved_data) {
       var tempPosts = retrieved_data.buffered_posts;
-      if(retrieved_data.name != null){
+      if(retrieved_data.name != null && retrieved_data.buffered_posts != null){
         for (var bufferedPostIndex = tempPosts.length - 1; bufferedPostIndex >=0; bufferedPostIndex--){
           var bufferedPostData = tempPosts[bufferedPostIndex];
           if(parentUrl === bufferedPostData.url){
@@ -33,9 +57,6 @@ function dataRecieved(responseText)
             var timeSinceCreationString = timeSince(bufferedPostData.integer_date) + " ago"
             var postHtml = '<li class="media"><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">' + timeSinceCreationString + '</small></span><strong class="text-success">' + retrieved_data.name + '</strong><p>' + bufferedPostData.content + '</p></div></li>'
             posts+= postHtml;
-            if(data.length === 0 && bufferedPostIndex == tempPosts.length - 1){
-              document.getElementById('postBody').innerHTML = posts;
-            }
           }
         }
       }
@@ -43,7 +64,7 @@ function dataRecieved(responseText)
         loop1:
           for(postIndex in data){
             var postData = data[postIndex];
-            if(retrieved_data.name!= null && postData.data.author === retrieved_data.name){
+            if(retrieved_data.name!= null && retrieved_data.buffered_posts != null && postData.data.author === retrieved_data.name){
               loop2:
                 for (var bufferedPostIndex = tempPosts.length - 1; bufferedPostIndex >=0; bufferedPostIndex--){
                   var bufferedPostData = tempPosts[bufferedPostIndex];
@@ -56,8 +77,9 @@ function dataRecieved(responseText)
                   }
                 }
             }
-            var timeSinceCreationString = timeSince(postData.data.created_utc*1000) + " ago"
-            var postHtml = '<li class="media"><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">' + timeSinceCreationString + '</small></span><strong class="text-success">' + postData.data.author + '</strong><p>' + postData.data.title + '</p></div></li>'
+            var timeSinceCreationString = timeSince(postData.data.created_utc*1000) + " ago";
+            var numRepliesString = postData.data.num_comments == 0 ? '' : '<br style="line-height: 15px;"><p class="link">View ' + postData.data.num_comments + ' replies</p>';
+            var postHtml = '<li class="media"><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">' + timeSinceCreationString + '</small></span><strong class="text-success">' + postData.data.author + '</strong><a class="invisbleLink" target="_blank" href="' + ("https://www.reddit.com/r/" + postData.data.subreddit + "/comments/" + postData.data.id) + '"><p>' + postData.data.title + '</p>' + numRepliesString + '</a></div></li>'
             posts+= postHtml;
             if(postIndex == data.length - 1){
               document.getElementById('postBody').innerHTML = posts;
@@ -67,7 +89,11 @@ function dataRecieved(responseText)
           chrome.storage.local.set({buffered_posts: tempPosts}, null);
         }
       }else{
-        // no posts
+        if(posts != ""){
+          document.getElementById('postBody').innerHTML = posts;
+        }else{
+          document.getElementById('postBody').innerHTML =  '<li class="media"><div class="media-body"><p class="text-muted centerText">No comments</p></div></li>';
+        }
       }
     });
   }

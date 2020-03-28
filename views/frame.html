@@ -1,6 +1,7 @@
 <html>
   <head>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="../css/dropdown.css">
     <style>
         html, body, iframe, h2 {
             margin: 0;
@@ -15,14 +16,35 @@
         p{
           margin-bottom: 0;
         }
+        .link{
+          cursor:pointer;
+          color:rgb(0, 119, 204);
+          text-decoration:none;
+        }
+        .link:hover{
+          text-decoration:underline;
+        }
+        a.invisbleLink{
+          color:black;
+          text-decoration:none;
+        }
+        a.invisbleLink:hover{
+          text-decoration:underline;
+        }
+        a:hover .link{
+          text-decoration:underline;
+        }
         .noRightPadding{
           padding-right: 0;
         }
         .noRightMargin{
           margin-right: 0;
         }
+        .centerText{
+          text-align: center;
+        }
         .comment-wrapper .panel-body {
-            overflow:auto;
+            overflow: visible;
         }
         .comment-wrapper .media-list .media img {
             width:64px;
@@ -73,6 +95,7 @@
         }
         .text-success {
             color: #3c763d;
+            text-decoration-color: #3c763d;
         }
         .media:first-child {
             margin-top: 0;
@@ -169,6 +192,7 @@
       </style>
       <script type="text/javascript" src="../frame-scripts/load-posts.js"></script>
       <script type="text/javascript" src="../frame-scripts/create-posts.js"></script>
+      <script type="text/javascript" src="../frame-scripts/dropdown.js"></script>
   </head>
   <body>
       <div class="row bootstrap snippets height100 divided noRightMargin">
@@ -181,6 +205,18 @@
                       <div class="panel-body">
                           <textarea id="postContent" class="form-control comment-box" placeholder="write a comment..." rows="3"></textarea>
                           <br style="line-height: 16px;">
+                          <div class="dropdown">
+                            <button id="dropbtn" class="dropbtn">Sort<span class="caret"></span></button>
+                            <div id="myDropdown" class="dropdown-content">
+                              <span class="dropdownOption" value="hot">Hot</span>
+                              <div class="divider"></div>
+                              <span class="dropdownOption" value="new">New</span>
+                              <div class="divider"></div>
+                              <span class="dropdownOption" value="top">Top</span>
+                              <div class="divider"></div>
+                              <span class="dropdownOption" value="comments">Comments</span>
+                            </div>
+                          </div>
                           <button type="button" id="postButton" class="btn btn-info pull-right">Post</button>
                           <div class="clearfix"></div>
                           <hr>

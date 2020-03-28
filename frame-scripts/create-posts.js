@@ -2,7 +2,7 @@
 document.addEventListener("DOMContentLoaded", function(event) {
   var postButton = document.getElementById("postButton");
   var postContent = document.getElementById("postContent");
-  var urlForPost = decodeURI(location.href.split('?url=')[1]);
+  var urlForPost = decodeURI(location.href.split('?url=')[1].split('?thread=')[0]);
   postButton.addEventListener("click", function() {
     var postData = {postType: "newThread", url: urlForPost, content: postContent.value, integer_date: new Date()*1}
     chrome.runtime.sendMessage({name:"createPost", postData: postData}, function () {
