@@ -35,7 +35,7 @@ function createNewPostForUser(postData, access_token){
     console.log(JSON.parse(this.responseText));
   }
   if(postData.postType === "newThread"){
-    xhr.send("api_type=json&kind=link&sr=test&resubmit=true&url="+postData.url+"&title="+postData.content);
+    xhr.send("api_type=json&kind=link&sr=RecoComments&resubmit=true&url="+postData.url+"&title="+postData.content);
   }else if(postData.postType === "comment"){
     xhr.send("api_type=json&thing_id="+postData.threadId+"&text="+postData.content);
   }else{

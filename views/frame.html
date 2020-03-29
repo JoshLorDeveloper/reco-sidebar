@@ -205,20 +205,21 @@
                       <div class="panel-body">
                           <textarea id="postContent" class="form-control comment-box" placeholder="write a comment..." rows="3"></textarea>
                           <br style="line-height: 16px;">
-                          <div class="dropdown">
-                            <button id="dropbtn" class="dropbtn">Sort<span class="caret"></span></button>
-                            <div id="myDropdown" class="dropdown-content">
-                              <span class="dropdownOption" value="hot">Hot</span>
-                              <div class="divider"></div>
-                              <span class="dropdownOption" value="new">New</span>
-                              <div class="divider"></div>
-                              <span class="dropdownOption" value="top">Top</span>
-                              <div class="divider"></div>
-                              <span class="dropdownOption" value="comments">Comments</span>
+                          <div class="clearfix">
+                            <div class="dropdown">
+                              <button id="dropbtn" class="dropbtn">Sort<span class="caret"></span></button>
+                              <div id="myDropdown" class="dropdown-content">
+                                <span class="dropdownOption" value="hot">Hot</span>
+                                <div class="divider"></div>
+                                <span class="dropdownOption" value="new">New</span>
+                                <div class="divider"></div>
+                                <span class="dropdownOption" value="top">Top</span>
+                                <div class="divider"></div>
+                                <span class="dropdownOption" value="comments">Comments</span>
+                              </div>
                             </div>
+                            <button type="button" id="postButton" class="btn btn-info pull-right">Post</button>
                           </div>
-                          <button type="button" id="postButton" class="btn btn-info pull-right">Post</button>
-                          <div class="clearfix"></div>
                           <hr>
                           <ul id="postBody" class="media-list">
                               <div class="loader"></div>
