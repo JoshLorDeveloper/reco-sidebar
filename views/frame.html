@@ -94,8 +94,8 @@
             color: #777;
         }
         .text-success {
-            color: #3c763d;
-            text-decoration-color: #3c763d;
+            color: #FF5700!important;
+            text-decoration-color: #FF5700!important;
         }
         .media:first-child {
             margin-top: 0;
@@ -111,10 +111,13 @@
             margin-top: 0;
             margin-bottom: 0;
         }
-        .btn-info {
+        .submitButton {
             color: #fff;
-            background-color: #5bc0de;
-            border-color: #46b8da;
+            background-color: #0077cc;
+        }
+        .submitButton:hover {
+            color: #fff;
+            background-color: #0e9aff;
         }
         .btn {
             display: inline-block;
@@ -218,7 +221,7 @@
                                 <span class="dropdownOption" value="comments">Comments</span>
                               </div>
                             </div>
-                            <button type="button" id="postButton" class="btn btn-info pull-right">Post</button>
+                            <button type="button" id="postButton" class="btn submitButton pull-right">Post</button>
                           </div>
                           <hr>
                           <ul id="postBody" class="media-list">

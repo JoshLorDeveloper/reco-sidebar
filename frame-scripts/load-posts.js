@@ -2,7 +2,9 @@ var params = location.href.split('?url=')[1].split('?thread=');
 var parentUrl = params[0];
 var url;
 if(params.length == 1){
-  url = "https://www.reddit.com/r/php/search.json?q=url%3A" + parentUrl + "&restrict_sr=0&sort=hot&limit=10";
+  //"https://www.reddit.com/r/php/search.json?restrict_sr=0&sort=" + attribute + "&limit=10&q=url%3A" + parentUrl;
+  //"https://www.reddit.com/api/info.json?restrict_sr=0&sort=" + attribute + "&limit=10&url=" + parentUrl;
+  url = "https://www.reddit.com/r/php/search.json?restrict_sr=0&sort=top&limit=10&q=url%3A" + parentUrl;
   httpGetAsync(url, dataRecieved);
 }else{
   // showing comments not yet supported
@@ -21,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 function changeSort() {
     var attribute = this.getAttribute("value");
-    url = "https://www.reddit.com/r/php/search.json?q=url%3A" + parentUrl + "&restrict_sr=0&sort=" + attribute + "&limit=10";
+    url = "https://www.reddit.com/r/php/search.json?restrict_sr=0&sort=" + attribute + "&limit=10&q=url%3A" + parentUrl;
     document.getElementById('postBody').innerHTML = '<div class="loader"></div>';
     httpGetAsync(url, dataRecieved);
 };
@@ -78,14 +80,24 @@ function dataRecieved(responseText)
                 }
             }
             var timeSinceCreationString = timeSince(postData.data.created_utc*1000) + " ago";
-            var numRepliesString = postData.data.num_comments == 0 ? '' : '<br style="line-height: 15px;"><p class="link">View ' + postData.data.num_comments + ' replies</p>';
+            var numRepliesString;
+            switch(postData.data.num_comments) {
+              case 0:
+                numRepliesString = '';
+                break;
+              case 1:
+                numRepliesString = '<br style="line-height: 15px;"><p class="link">View 1 reply</p>';
+                break;
+              default:
+                numRepliesString = '<br style="line-height: 15px;"><p class="link">View ' + postData.data.num_comments + ' replies</p>';
+            }
             var postHtml = '<li class="media"><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">' + timeSinceCreationString + '</small></span><strong class="text-success">' + postData.data.author + '</strong><a class="invisbleLink" target="_blank" href="' + ("https://www.reddit.com/r/" + postData.data.subreddit + "/comments/" + postData.data.id) + '"><p>' + postData.data.title + '</p>' + numRepliesString + '</a></div></li>'
             posts+= postHtml;
             if(postIndex == data.length - 1){
               document.getElementById('postBody').innerHTML = posts;
             }
           }
-        if(parsedResponseText.data.children.length != tempPosts.lenth){
+        if(tempPosts != null && parsedResponseText.data.children.length != tempPosts.lenth){
           chrome.storage.local.set({buffered_posts: tempPosts}, null);
         }
       }else{

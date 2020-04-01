@@ -17,6 +17,11 @@
   "web_accessible_resources": [
       "views/frame.html"
   ],
+  "icons": {
+        "16": "resources/icons/icon16.png",
+        "48": "resources/icons/icon48.png",
+        "128": "resources/icons/icon128.png"
+  },
   "permissions": [
       "storage",
       "tabs",

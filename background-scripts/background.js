@@ -2,9 +2,14 @@
 chrome.browserAction.onClicked.addListener(function(tab){
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
       chrome.tabs.executeScript(tabs[0].id, { file: "resources/jquery.min.js" }, function() {
-        chrome.tabs.executeScript(tabs[0].id, { file: "content-scripts/toggle-sidebar.js" });
+        let e = chrome.runtime.lastError;
+        if(e !== undefined){
+          console.log(tabs[0].id, e);
+        }else{
+          chrome.tabs.executeScript(tabs[0].id, { file: "content-scripts/toggle-sidebar.js" });
+        }
       });
-    })
+    });
 });
 
 ////////// Message passing for user authentication

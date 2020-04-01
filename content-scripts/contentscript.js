@@ -1,5 +1,5 @@
 // https://www.reddit.com/r/php/search.json?q=url%3Ahttp%3A%2F%2Fi.imgur.com%2FJeF3XcN.jpg&sort=hot
-//https://www.reddit.com/submit.json?url=http%3A%2F%2Fi.imgur.com%2FJeF3XcN.jpg&sort=hot
+// https://www.reddit.com/submit.json?url=http%3A%2F%2Fi.imgur.com%2FJeF3XcN.jpg&sort=hot
 
 // constants
 var width = 300;
@@ -12,7 +12,18 @@ if (!location.ancestorOrigins.contains(extensionOrigin)) {
                            'height:100%;z-index:999999;width:' + width + 'px;';
     var iframe = document.createElement('iframe');
     // Must be declared at web_accessible_resources in manifest.json
-    iframe.src = chrome.runtime.getURL('views/frame.html') + "?url=" + encodeURIComponent(document.location); // comment out url addition if not requesting from iFrame
+    var url;
+    switch (window.location.hostname) {
+      case "www.youtube.com":
+      case "www.netflix.com":
+          url = document.location.href.split('&')[0];
+          break;
+      default:
+          url = document.location.href;
+    }
+    console.log(window.location.hostname)
+    console.log(url)
+    iframe.src = chrome.runtime.getURL('views/frame.html') + "?url=" + encodeURIComponent(url); // comment out url addition if not requesting from iFrame
     iframe.frameBorder = "none";
     iframe.id = "reco-sidebar-iframe";
     iframe.style.cssText = 'left:0;top:0;width:100%;height:100%;';
