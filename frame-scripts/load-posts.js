@@ -1,17 +1,8 @@
 var params = location.href.split('?url=')[1].split('?thread=');
 var parentUrl = params[0];
 var url;
-if(params.length == 1){
-  //"https://www.reddit.com/r/php/search.json?restrict_sr=0&sort=" + attribute + "&limit=10&q=url%3A" + parentUrl;
-  //"https://www.reddit.com/api/info.json?restrict_sr=0&sort=" + attribute + "&limit=10&url=" + parentUrl;
-  url = "https://www.reddit.com/r/php/search.json?restrict_sr=0&sort=top&limit=10&q=url%3A" + parentUrl;
-  httpGetAsync(url, dataRecieved);
-}else{
-  // showing comments not yet supported
-  var responsePostInfo = JSON.parse(params[1])
-  url = "https://www.reddit.com/r/" + responsePostInfo.subreddit + "/comments/" + responsePostInfo.thread_id + ".json" + responsePostInfo.comment_id != null ? ("?comment=" + responsePostInfo.comment_id) : "";
-  //httpGetAsync(url, dataRecieved);
-}
+
+load()
 
 document.addEventListener("DOMContentLoaded", function(event) {
   var elements = document.getElementsByClassName("dropdownOption");
@@ -21,11 +12,33 @@ document.addEventListener("DOMContentLoaded", function(event) {
   }
 });
 
-function changeSort() {
-    var attribute = this.getAttribute("value");
-    url = "https://www.reddit.com/r/php/search.json?restrict_sr=0&sort=" + attribute + "&limit=10&q=url%3A" + parentUrl;
-    document.getElementById('postBody').innerHTML = '<div class="loader"></div>';
+function load(){
+  if(params.length == 1){
+    if (containsParameters(parentUrl)){
+      url = "https://www.reddit.com/api/info.json?limit=100&url=" + parentUrl;
+      httpGetAsync(url, sortPosts);
+    }else{
+      url = "https://www.reddit.com/r/php/search.json?restrict_sr=0&sort=top&limit=100&q=url%3A" + parentUrl;
+      httpGetAsync(url, dataRecieved);
+    }
+  }else{
+    // showing comments not yet supported
+    var responsePostInfo = JSON.parse(params[1])
+    url = "https://www.reddit.com/r/" + responsePostInfo.subreddit + "/comments/" + responsePostInfo.thread_id + ".json" + responsePostInfo.comment_id != null ? ("?comment=" + responsePostInfo.comment_id) : "";
     httpGetAsync(url, dataRecieved);
+  }
+}
+
+var dataCache;
+function changeSort() {
+    document.getElementById('postBody').innerHTML = '<div class="loader"></div>';
+    var attribute = this.getAttribute("value");
+    if (containsParameters(parentUrl)){
+      sortPosts(dataCache, attribute);
+    }else{
+      url = "https://www.reddit.com/r/php/search.json?restrict_sr=0&sort=" + attribute + "&limit=10&q=url%3A" + parentUrl;
+      httpGetAsync(url, dataRecieved);
+    }
 };
 
 function httpGetAsync(theUrl, callback)
@@ -33,19 +46,46 @@ function httpGetAsync(theUrl, callback)
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200){
-            callback(this.responseText);
+            var tempData = JSON.parse(this.responseText).data;
+            if(tempData){
+              callback(tempData.children)
+            }else{
+              callback(null);
+            }
         }
     }
     xmlHttp.open("GET", theUrl, true); // true for asynchronous
     xmlHttp.send();
 }
 
-function dataRecieved(responseText)
+function sortPosts(withData, by){
+  if(withData){
+    switch(by) {
+      case "hot":
+        withData.sort(byHot);
+        break;
+      case "new":
+        withData.sort(byDate);
+        break;
+      case "top":
+        withData.sort(byScore);
+        break;
+      case "comments":
+        withData.sort(byComments);
+        break;
+      default:
+        // if variable "by" not defined
+        withData.sort(byScore);
+    }
+  }
+  dataRecieved(withData);
+}
+
+function dataRecieved(data)
 {
   var posts = "";
-  var parsedResponseText = JSON.parse(responseText)
-  if(parsedResponseText.data){
-    var data = parsedResponseText.data.children;
+  dataCache = data;
+  if(data){
     chrome.storage.local.get(['buffered_posts','name'], function(retrieved_data) {
       var tempPosts = retrieved_data.buffered_posts;
       if(retrieved_data.name != null && retrieved_data.buffered_posts != null){
@@ -97,7 +137,7 @@ function dataRecieved(responseText)
               document.getElementById('postBody').innerHTML = posts;
             }
           }
-        if(tempPosts != null && parsedResponseText.data.children.length != tempPosts.lenth){
+        if(tempPosts != null && data.length != tempPosts.lenth){
           chrome.storage.local.set({buffered_posts: tempPosts}, null);
         }
       }else{
@@ -109,6 +149,10 @@ function dataRecieved(responseText)
       }
     });
   }
+}
+
+function containsParameters(url){
+  return url.includes("%3F");
 }
 
 function timeSince(date) {

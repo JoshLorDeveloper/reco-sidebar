@@ -1,5 +1,7 @@
 // https://www.reddit.com/r/php/search.json?q=url%3Ahttp%3A%2F%2Fi.imgur.com%2FJeF3XcN.jpg&sort=hot
 // https://www.reddit.com/submit.json?url=http%3A%2F%2Fi.imgur.com%2FJeF3XcN.jpg&sort=hot
+//"https://www.reddit.com/r/php/search.json?restrict_sr=0&sort=" + attribute + "&limit=10&q=url%3A" + parentUrl;
+//"https://www.reddit.com/api/info.json?restrict_sr=0&sort=" + attribute + "&limit=10&url=" + parentUrl;
 
 // constants
 var width = 300;
@@ -12,17 +14,7 @@ if (!location.ancestorOrigins.contains(extensionOrigin)) {
                            'height:100%;z-index:999999;width:' + width + 'px;';
     var iframe = document.createElement('iframe');
     // Must be declared at web_accessible_resources in manifest.json
-    var url;
-    switch (window.location.hostname) {
-      case "www.youtube.com":
-      case "www.netflix.com":
-          url = document.location.href.split('&')[0];
-          break;
-      default:
-          url = document.location.href;
-    }
-    console.log(window.location.hostname)
-    console.log(url)
+    var url = getURL();
     iframe.src = chrome.runtime.getURL('views/frame.html') + "?url=" + encodeURIComponent(url); // comment out url addition if not requesting from iFrame
     iframe.frameBorder = "none";
     iframe.id = "reco-sidebar-iframe";
@@ -37,4 +29,26 @@ if (!location.ancestorOrigins.contains(extensionOrigin)) {
       parentDiv.appendChild(iframe);
       document.body.appendChild(parentDiv);
     });
+}else{
+    var url = getURL();
+    var iframe = document.getElementById('reco-sidebar-iframe');
+    iframe.src = chrome.runtime.getURL('views/frame.html') + "?url=" + encodeURIComponent(url);
+}
+
+
+function getURL(){
+  var url;
+  switch (window.location.hostname) {
+    case "www.youtube.com":
+        url = document.location.href.split('&')[0];
+        break;
+    case "www.netflix.com":
+        url = document.location.href.split('?')[0];
+        break;
+    default:
+        url = document.location.href;
+  }
+  console.log(window.location.hostname)
+  console.log(url)
+  return url;
 }
