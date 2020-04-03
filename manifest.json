@@ -18,14 +18,15 @@
       "views/frame.html"
   ],
   "icons": {
-        "16": "resources/icons2/icon16.png",
-        "48": "resources/icons2/icon48.png",
-        "128": "resources/icons2/icon128.png"
+        "16": "resources/icons/icon16.png",
+        "48": "resources/icons/icon48.png",
+        "128": "resources/icons/icon128.png"
   },
   "permissions": [
       "storage",
       "tabs",
       "identity",
+      "webNavigation",
       "http://*/",
       "https://*/",
       "*://www.reddit.com/*"

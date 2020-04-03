@@ -6,7 +6,6 @@ load()
 
 document.addEventListener("DOMContentLoaded", function(event) {
   var elements = document.getElementsByClassName("dropdownOption");
-
   for (var i = 0; i < elements.length; i++) {
     elements[i].addEventListener("click", changeSort);
   }

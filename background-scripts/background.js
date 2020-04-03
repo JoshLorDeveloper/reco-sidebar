@@ -12,6 +12,11 @@ chrome.browserAction.onClicked.addListener(function(tab){
     });
 });
 
+////////// Detect push state page change
+chrome.webNavigation.onHistoryStateUpdated.addListener(function(details) {
+        chrome.tabs.executeScript(details.tabId, { file: "content-scripts/update-iframe.js" });
+});
+
 ////////// Message passing for user authentication
 var postBuffer = []
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {

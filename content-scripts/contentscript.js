@@ -35,7 +35,7 @@ if (!location.ancestorOrigins.contains(extensionOrigin)) {
     iframe.src = chrome.runtime.getURL('views/frame.html') + "?url=" + encodeURIComponent(url);
 }
 
-
+// Maintain updated with getURL() function in update-iframe.js
 function getURL(){
   var url;
   switch (window.location.hostname) {
@@ -48,7 +48,5 @@ function getURL(){
     default:
         url = document.location.href;
   }
-  console.log(window.location.hostname)
-  console.log(url)
   return url;
 }
