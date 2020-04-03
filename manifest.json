@@ -28,7 +28,6 @@
       "identity",
       "webNavigation",
       "http://*/",
-      "https://*/",
-      "*://www.reddit.com/*"
+      "https://*/"
   ]
 }

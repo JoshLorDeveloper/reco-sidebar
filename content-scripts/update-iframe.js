@@ -1,3 +1,5 @@
+// Used for page changes using history state updates
+
 var url = getURL();
 var iframe = document.getElementById('reco-sidebar-iframe');
 // setting source of iframe also refreshes iframe
@@ -11,6 +13,9 @@ function getURL(){
         url = document.location.href.split('&')[0];
         break;
     case "www.netflix.com":
+        url = document.location.href.split('?')[0];
+        break;
+    case "www.nytimes.com":
         url = document.location.href.split('?')[0];
         break;
     default:

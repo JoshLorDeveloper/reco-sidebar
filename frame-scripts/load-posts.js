@@ -35,7 +35,7 @@ function changeSort() {
     if (containsParameters(parentUrl)){
       sortPosts(dataCache, attribute);
     }else{
-      url = "https://www.reddit.com/r/php/search.json?restrict_sr=0&sort=" + attribute + "&limit=10&q=url%3A" + parentUrl;
+      url = "https://www.reddit.com/r/php/search.json?restrict_sr=0&sort=" + attribute + "&limit=100&q=url%3A" + parentUrl;
       httpGetAsync(url, dataRecieved);
     }
 };

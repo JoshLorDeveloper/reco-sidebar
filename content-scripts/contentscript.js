@@ -45,6 +45,9 @@ function getURL(){
     case "www.netflix.com":
         url = document.location.href.split('?')[0];
         break;
+    case "www.nytimes.com":
+        url = document.location.href.split('?')[0];
+        break;
     default:
         url = document.location.href;
   }
