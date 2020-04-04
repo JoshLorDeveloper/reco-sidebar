@@ -8,18 +8,21 @@ iframe.src = chrome.runtime.getURL('views/frame.html') + "?url=" + encodeURIComp
 // Maintain updated with getURL() function in contentscript.js
 function getURL(){
   var url;
-  switch (window.location.hostname) {
-    case "www.youtube.com":
-        url = document.location.href.split('&')[0];
-        break;
-    case "www.netflix.com":
-        url = document.location.href.split('?')[0];
-        break;
-    case "www.nytimes.com":
-        url = document.location.href.split('?')[0];
-        break;
-    default:
-        url = document.location.href;
+  if(window.location.hostname.includes('.')){
+    switch (window.location.hostname.split('.')[1]) {
+      case "youtube":
+          url = document.location.href.split('&')[0];
+          break;
+      case "netflix":
+      case "nytimes":
+      case "amazon":
+          url = document.location.href.split('?')[0];
+          break;
+      default:
+          url = document.location.href;
+    }
+  }else{
+    url = document.location.href;
   }
   return url;
 }
